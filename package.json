@@ -1,0 +1,21 @@
+{
+  "name": "unwired",
+  "version": "0.1.0",
+  "description": "Finds code that is written, tested and never actually reached in production.",
+  "keywords": ["typescript", "static-analysis", "dead-code", "ci", "ai-agents", "code-quality"],
+  "license": "MIT",
+  "type": "commonjs",
+  "bin": { "unwired": "dist/cli.js" },
+  "main": "dist/detect.js",
+  "types": "dist/detect.d.ts",
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx src/cli.ts",
+    "test": "tsx test/detect.test.ts",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "peerDependencies": { "typescript": ">=5.0.0" },
+  "devDependencies": { "@types/node": "^22.0.0", "tsx": "^4.19.0", "typescript": "^5.6.0" },
+  "engines": { "node": ">=18" }
+}
