@@ -158,9 +158,25 @@ export function analyse(options: Options): Report {
   }
 
   // Text cross-check: catches destructured dynamic imports that symbol resolution misses.
-  const prodText = production.map((sf) => ({ file: rel(sf.fileName), text: fs.readFileSync(sf.fileName, 'utf8') }));
-  const citedElsewhere = (name: string, own: string) =>
-    prodText.some((s) => s.file !== own && new RegExp(`\\b${name}\\b`).test(s.text));
+  // Precompiled once: every production file is tokenised into a Set of its word runs
+  // (maximal [A-Za-z0-9_] spans, the exact units a `\bname\b` regex can match). A name is
+  // then "cited elsewhere" iff any OTHER file's Set contains it, an O(1) lookup per file
+  // instead of recompiling a regex and rescanning the whole file text on every call.
+  const prodTokens = production.map((sf) => ({
+    file: rel(sf.fileName),
+    tokens: new Set(fs.readFileSync(sf.fileName, 'utf8').match(/\w+/g) ?? []),
+  }));
+  const citedElsewhere = (name: string, own: string) => {
+    // A name made only of word characters is a single token: the Set lookup is exact.
+    // Anything else (a `$` in the identifier, say) falls back to the original regex scan
+    // so the observable result never changes.
+    if (/^\w+$/.test(name)) {
+      return prodTokens.some((s) => s.file !== own && s.tokens.has(name));
+    }
+    return production.some(
+      (sf) => rel(sf.fileName) !== own && new RegExp(`\\b${name}\\b`).test(fs.readFileSync(sf.fileName, 'utf8')),
+    );
+  };
 
   const dead = [...exports_.values()].filter((e) => e.refs === 0).filter((e) => !citedElsewhere(e.name, e.file));
 

@@ -1,0 +1,25 @@
+Reproduce with:
+
+  npx tsx src/cli.ts --project demo/tsconfig.json
+
+(from the repo root; once published, the equivalent is `npx unwired --project demo/tsconfig.json`)
+
+Expected output:
+
+=== FAMILY A: a parameter frozen at every production call site ===
+1 case(s) across 2 production files. Read this one first.
+
+  src/notify.ts send(...) parameter "channel" is ALWAYS "email" across 2 production call site(s)  [line 9]
+
+(Family B hidden: 0 export(s) referenced only by tests,
+ 4 referenced nowhere at all. No live defect has ever come
+ out of it for me: it is an inventory of unfinished features. Use --full to see it.)
+
+Reading the result:
+
+  send(message, channel) is called twice, both times with channel = "email".
+  The "sms" branch is correct and could be unit-tested green, yet it never runs.
+  That is the dead-branch shape unwired reports.
+
+  enqueue(message, priority) is called with priority 1 and 5: a genuinely varied
+  parameter, so it is correctly NOT flagged.

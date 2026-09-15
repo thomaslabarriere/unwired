@@ -27,9 +27,24 @@ check('does NOT flag a parameter that production varies',
 check('ignores the value passed by the test file',
   !frozen.includes('score.isMale=false'), 'a test passing `false` must not count as production');
 
+check('flags a parameter frozen to `false` across two call sites',
+  frozen.includes('discount.isPremium=false'), `got: ${JSON.stringify(frozen)}`);
+
+check('flags a parameter frozen at a SINGLE call site',
+  report.frozenParams.some((f) => f.fn === 'tax' && f.param === 'region' && f.value === '"EU"' && f.callSites === 1),
+  `got: ${JSON.stringify(report.frozenParams.map((f) => [f.fn, f.param, f.value, f.callSites]))}`);
+
+check('does NOT flag the varied `amount` param of a single-call-site function',
+  !frozen.some((k) => k.startsWith('tax.amount')), `got: ${JSON.stringify(frozen)}`);
+
 check('reports an export referenced only by tests',
   report.testOnlyExports.some((e) => e.name === 'unusedHelper'),
   `got: ${JSON.stringify(report.testOnlyExports.map((e) => e.name))}`);
+
+check('cross-check keeps a name cited elsewhere out of the dead list',
+  !report.neverReferenced.some((e) => e.name === 'lazyLoaded')
+    && !report.testOnlyExports.some((e) => e.name === 'lazyLoaded'),
+  `got neverReferenced: ${JSON.stringify(report.neverReferenced.map((e) => e.name))}`);
 
 check('baseline keys carry no line number',
   report.frozenParams.every((f) => !/\bline\b|:\d+/.test(f.key)),
