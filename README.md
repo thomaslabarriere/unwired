@@ -116,6 +116,6 @@ npm i -D unwired
 
 Requires Node 18+ and TypeScript 5+ as a peer dependency.
 
-## Licence
+## License
 
-MIT licence. Thomas Labarriere
+Licensed under the MIT License. Thomas Labarriere
