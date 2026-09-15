@@ -33,7 +33,7 @@ the logic.
 
 ## What it detects
 
-**Family A — a parameter frozen at every production call site.**
+**Family A: a parameter frozen at every production call site.**
 The dangerous one. The function is called, it returns, its test is green, and the useful
 branch is dead. Both real defects I fixed that day came from here.
 
@@ -46,9 +46,9 @@ That one is real, from my own codebase. `analyzeWeek` was designed to compare a 
 week against previous ones. No caller ever passed them. The comparison had been dead for
 months, under 10,858 green tests.
 
-**Family B — an export referenced nowhere in production, only by tests.**
+**Family B: an export referenced nowhere in production, only by tests.**
 Much noisier, and hidden by default. Most cases are unfinished features rather than
-defects, and wiring one up means shipping a path that has never run — often worse than
+defects, and wiring one up means shipping a path that has never run, often worse than
 leaving it dead.
 
 ## Usage
@@ -75,11 +75,11 @@ const report = analyse({ tsconfig: './tsconfig.json', scope: ['/src/'] });
 
 `unwired` does **not** ask you to fix the cases it finds. On my first pass it reported 49
 family-A cases: 3 serious candidates, 2 real defects, and 1 non-defect (a *quiet hours*
-helper that used its defaults because no UI ever set them — the default **was** the
+helper that used its defaults because no UI ever set them; the default **was** the
 correct behaviour).
 
 So it works as a ratchet. You judge the existing cases once, accept them into a versioned
-baseline, and CI fails only on the **fiftieth** — the one someone writes next week.
+baseline, and CI fails only on the **fiftieth**, the one someone writes next week.
 
 ```yaml
 # .github/workflows/ci.yml
@@ -118,4 +118,4 @@ Requires Node 18+ and TypeScript 5+ as a peer dependency.
 
 ## Licence
 
-MIT — Thomas Labarriere
+MIT licence. Thomas Labarriere
